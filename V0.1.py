@@ -30,9 +30,15 @@ from transformers import pipeline
 
 overviewer = pipeline("summarization", model="sshleifer/distilbart-cnn-12-6")
 
+
 def overview_text(text):
-    overview = overviewer(text, max_length=500, min_length=30, do_sample=False)
+    input_length = len(text.split())
+    max_len = min(500, max(100, input_length * 2))
+
+    overview = overviewer(text, max_length=max_len, min_length=int(max_len * 0.5), do_sample=False)
     return overview[0]['summary_text']
+
+
 
 def search_and_overview(subject):
     ids = retrieving_papers(subject)
@@ -40,7 +46,7 @@ def search_and_overview(subject):
     overviews = [(title, overview_text(overview)) for title, overview in articles]
     return overviews
 
-subject = "diabetes"
+subject = "alcohol addiction"
 results = search_and_overview(subject)
 for title, summary in results:
     print(f"Title: {title}\nSummary: {summary}\n")
